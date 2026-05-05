@@ -1,0 +1,279 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+
+\begin{document}
+
+\title{Satellite-Based InSAR Ground Deformation Monitoring\\
+at the Jharia Coalfield Mine Site Using MineGuard}
+
+\author{
+  \IEEEauthorblockN{[Author Names]}
+  \IEEEauthorblockA{\textit{[Department / Institution]} \\
+  [City, Country] \\
+  [email@institution.edu]}
+}
+
+\maketitle
+
+% -------------------------------------------------------
+\begin{abstract}
+This paper presents millimetre-precision ground deformation monitoring of
+the Jharia coalfield mine site (23.732\textdegree{}N, 86.439\textdegree{}E),
+Jharkhand, India, using the MineGuard InSAR processing pipeline and
+Sentinel-1 C-band SAR data acquired from 2017 to 2022.
+Ten interferometric pairs across both ascending (ASC) and descending (DSC)
+orbital passes were processed with ESA SNAP GPT to derive line-of-sight (LOS)
+displacement time series. A 2D ASC+DSC vector decomposition resolved true
+vertical and east-west (E-W) displacement components at five user-selected
+hotspot locations.
+Cumulative vertical subsidence reached \(-380\)\,mm at Hotspot P4 (CRITICAL
+risk), while Hotspot P2 exhibited a pronounced eastward lateral shift of
+\(+182\)\,mm.
+Three of four monitored points were classified as HIGH or CRITICAL risk.
+Episodic displacement events detected in 2018 and 2020 suggest discrete
+geomechanical failure rather than uniform creep.
+An AI-generated geotechnical report, produced via the Claude API, corroborated
+the findings and issued site-specific remediation recommendations.
+\end{abstract}
+
+\begin{IEEEkeywords}
+InSAR, Sentinel-1, ground deformation, mine subsidence, Jharia coalfield,
+displacement monitoring, 2D vector decomposition
+\end{IEEEkeywords}
+
+% -------------------------------------------------------
+\section{Introduction}
+The Jharia coalfield in Jharkhand, India, is one of the country's largest
+reserves of prime coking coal and has been actively mined for over a century.
+Extensive underground extraction causes surface subsidence, slope instability,
+and lateral ground creep---hazards that threaten mine infrastructure,
+residential structures, and personnel safety \cite{singh2018}.
+Conventional geodetic surveys (total stations, levelling) provide only sparse
+spatial coverage and are costly to repeat at high temporal frequency.
+
+Interferometric Synthetic Aperture Radar (InSAR) overcomes these limitations
+by using the phase difference between repeat-pass SAR acquisitions to derive
+spatially dense displacement maps at millimetre-level precision
+\cite{massonnet1998, ferretti2001}.
+The European Space Agency's (ESA) Sentinel-1 constellation
+(C-band, 5.546\,cm wavelength, 6-day revisit) provides a freely accessible
+archive of Single Look Complex (SLC) scenes dating back to 2014, making it
+especially suitable for long-term mine monitoring.
+
+This work demonstrates the end-to-end capability of \textit{MineGuard}, a
+web-based InSAR monitoring platform designed for non-specialist mine site
+engineers. MineGuard integrates satellite data acquisition, SNAP GPT
+interferometric processing, 2D displacement decomposition, and AI-generated
+risk reporting in a single guided workflow.
+
+% -------------------------------------------------------
+\section{Study Area and Data}
+The study site is the Jharia open-pit and underground mine complex centred
+at 23.732109\textdegree{}N, 86.439451\textdegree{}E.
+A monitoring bounding box of approximately $4 \times 6$\,km was defined over
+the active extraction zone.
+
+Ten Sentinel-1 SLC scene pairs were selected from the Copernicus Data Space
+Ecosystem (CDSE) archive \cite{cdse2023}: five ascending-pass (Track ASC)
+and five descending-pass (Track DSC) pairs, each spanning approximately one
+year (Table~\ref{tab:pairs}).
+Temporal baselines of $\sim$12 months and perpendicular baselines below
+150\,m were enforced to maintain interferometric coherence above a threshold
+of 0.15.
+
+\begin{table}[h]
+\caption{Sentinel-1 Interferometric Pairs}
+\label{tab:pairs}
+\centering
+\small
+\begin{tabular}{ccc}
+\toprule
+\textbf{Pair} & \textbf{Master Date} & \textbf{Slave Date} \\
+\midrule
+ASC 1 / DSC 1 & 2017 & 2018 \\
+ASC 2 / DSC 2 & 2018 & 2019 \\
+ASC 3 / DSC 3 & 2019 & 2020 \\
+ASC 4 / DSC 4 & 2020 & 2021 \\
+ASC 5 / DSC 5 & 2021 & 2022 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% -------------------------------------------------------
+\section{Methodology}
+\subsection{InSAR Processing}
+Interferograms were generated for all 10 scene pairs using the ESA SNAP GPT
+interferometric processing graph, which performs co-registration, interferogram
+formation, topographic phase removal (using SRTM 3-arc-second DEM), Goldstein
+filtering, and terrain-corrected geocoding \cite{snap2023}.
+Phase unwrapping recovered cumulative displacements beyond the single-pair
+ambiguity of $\pm$13.9\,mm ($\lambda/4$).
+
+\subsection{2D Displacement Decomposition}
+Because Sentinel-1 LOS measurements combine vertical and horizontal
+contributions, a dual-orbit decomposition \cite{wright2004} was applied at
+each epoch where both ASC and DSC interferograms were available:
+
+\begin{equation}
+  \begin{bmatrix} d_\text{V} \\ d_\text{EW} \end{bmatrix}
+  =
+  \begin{bmatrix}
+    \cos\theta_\text{A} & -\sin\theta_\text{A}\sin\phi_\text{A} \\
+    \cos\theta_\text{D} & -\sin\theta_\text{D}\sin\phi_\text{D}
+  \end{bmatrix}^{-1}
+  \begin{bmatrix} d_\text{LOS}^\text{A} \\ d_\text{LOS}^\text{D} \end{bmatrix}
+  \label{eq:decomp}
+\end{equation}
+
+\noindent where $\theta$ is the incidence angle (ASC: 40.0\textdegree{},
+DSC: 35.2\textdegree{}), $\phi$ is the flight heading, and subscripts A/D
+denote ascending/descending orbit passes.
+
+\subsection{Hotspot Monitoring}
+Five monitoring hotspots (P1--P5) were placed by the user on an interactive
+satellite map, constrained within the defined crop area. Geographic coordinates
+were mapped to SAR pixel indices for per-pixel phase extraction. Displacement
+time series and 3D spatial trajectories were computed for each point.
+
+% -------------------------------------------------------
+\section{Results and Discussion}
+\subsection{Displacement Time Series}
+Fig.~\ref{fig:ew} shows the cumulative east-west displacement per year for
+all hotspots derived from 2D ASC+DSC decomposition.
+P3 exhibits the largest transient E-W excursion, peaking at approximately
+$+$590\,mm westward in 2019--2020 before reversing to $+$113\,mm by 2022.
+P4 shows a monotonically increasing westward shift culminating at
+$-$449\,mm---the largest E-W displacement observed at the site.
+P1 and P2 display moderate eastward trends of $+$22\,mm and $+$63\,mm,
+respectively.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\columnwidth]{results/plot_01_horizontal_displacement.png}
+  \caption{Cumulative horizontal (East-West) displacement per year at five
+           hotspot locations, derived from 2D ASC+DSC InSAR decomposition,
+           Jharia mine site, 2017--2022.}
+  \label{fig:ew}
+\end{figure}
+
+\subsection{3D Displacement Trajectory}
+Fig.~\ref{fig:3d} presents the 3D trajectory of each hotspot through
+E-W displacement ($x$-axis), vertical displacement ($y$-axis), and time
+($z$-axis, decimal year).
+P4 traces a steep downward-westward path, consistent with pit-wall failure
+driven by stope collapse. P5 records the largest vertical component
+($-$332\,mm) combined with a moderate eastward shift ($+$113\,mm), suggesting
+a translational slide mechanism. The non-linear trajectories of P1 and P3
+reflect episodic displacement events superimposed on a background creep signal.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\columnwidth]{results/plot_03_3d_trajectory.png}
+  \caption{3D hotspot displacement trajectory ($x$: E-W displacement;
+           $y$: vertical displacement; $z$: time in decimal years).
+           Labels show cumulative EW and vertical values at 2022.}
+  \label{fig:3d}
+\end{figure}
+
+\subsection{Risk Assessment}
+Table~\ref{tab:risk} summarises cumulative displacements and risk ratings
+assigned by the MineGuard AI module (Claude API).
+Three of four primary hotspots are rated HIGH or CRITICAL.
+
+\begin{table}[h]
+\caption{Cumulative Displacement and Risk Classification (2017--2022)}
+\label{tab:risk}
+\centering
+\small
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Hotspot} & \textbf{Risk} & \textbf{Vert. (mm)} & \textbf{E-W (mm)} \\
+\midrule
+P4 & \textbf{CRITICAL} & $-379.5$ & $+7.4$  \\
+P3 & HIGH              & $-270.0$ & $+34.0$ \\
+P1 & HIGH              & $-240.7$ & $+76.0$ \\
+P2 & MEDIUM            & $-124.2$ & $+182.2$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two critical episodic events were identified:
+(i) In June 2018, P3 and P1 recorded simultaneous large displacements
+($+$287\,mm E-W and $-$260\,mm vertical, respectively), indicating a
+widespread failure episode likely associated with a mine-wide blasting event
+or sudden stope collapse;
+(ii) In June 2020, P1 reversed direction with a $-$188\,mm E-W jump,
+suggesting renewed westward creep following the 2018 event.
+These episodic signatures contrast with simple linear subsidence and
+underscore the need for high-cadence monitoring.
+
+% -------------------------------------------------------
+\section{Conclusion}
+This study confirms active and spatially heterogeneous ground deformation at
+the Jharia coalfield mine site using a 5-year Sentinel-1 InSAR time series
+processed through the MineGuard platform. Key findings are:
+
+\begin{itemize}
+  \item Hotspot P4 experienced a CRITICAL cumulative vertical subsidence of
+        $-$380\,mm, requiring immediate geotechnical inspection.
+  \item Hotspot P2 shows pronounced eastward lateral drift ($+$182\,mm),
+        indicative of active slope translation.
+  \item Episodic displacement events in 2018 and 2020 point to discrete
+        failure mechanisms rather than uniform consolidation.
+  \item The MineGuard AI summary module correctly stratified risk across all
+        hotspots and generated actionable remediation guidance.
+\end{itemize}
+
+Future work will incorporate the full 6-day Sentinel-1 revisit cycle,
+PS-InSAR persistent scatterer analysis, and integration of ground-truth
+data from prism targets to validate the satellite-derived displacement
+estimates.
+
+% -------------------------------------------------------
+\begin{thebibliography}{00}
+
+\bibitem{singh2018}
+R.~P. Singh and D.~C. Panigrahi,
+``Surface subsidence due to underground coal mining in India: monitoring
+and prediction,''
+\textit{Int. J. Mining Sci. Technol.}, vol.~28, no.~3, pp.~457--465, 2018.
+
+\bibitem{massonnet1998}
+D.~Massonnet and K.~L. Feigl,
+``Radar interferometry and its application to changes in the Earth's surface,''
+\textit{Rev. Geophys.}, vol.~36, no.~4, pp.~441--500, 1998.
+
+\bibitem{ferretti2001}
+A.~Ferretti, C.~Prati, and F.~Rocca,
+``Permanent scatterers in SAR interferometry,''
+\textit{IEEE Trans. Geosci. Remote Sens.}, vol.~39, no.~1, pp.~8--20, 2001.
+
+\bibitem{wright2004}
+T.~J. Wright, B.~E. Parsons, and Z.~Lu,
+``Toward mapping surface deformation in three dimensions using InSAR,''
+\textit{Geophys. Res. Lett.}, vol.~31, no.~1, 2004.
+
+\bibitem{snap2023}
+European Space Agency,
+``SNAP --- SeNtinel Application Platform,'' version 9.0,
+[Online]. Available: \url{https://step.esa.int/main/toolboxes/snap/}
+
+\bibitem{cdse2023}
+European Union / ESA / Eumetsat,
+``Copernicus Data Space Ecosystem,''
+[Online]. Available: \url{https://dataspace.copernicus.eu/}
+
+\end{thebibliography}
+
+\end{document}

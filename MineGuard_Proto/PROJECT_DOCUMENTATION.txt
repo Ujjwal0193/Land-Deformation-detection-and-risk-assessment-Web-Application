@@ -1,0 +1,355 @@
+================================================================================
+                    MINEGUARD — InSAR MINE MONITORING SYSTEM
+                         Complete Project Documentation
+================================================================================
+
+PROJECT PURPOSE
+===============
+MineGuard is a Python-based InSAR (Interferometric Synthetic Aperture Radar)
+processing pipeline designed for mine pit stability monitoring and landslide
+early warning. It downloads Sentinel-1 satellite radar data from the Copernicus
+Data Space Ecosystem, processes interferograms using ESA SNAP GPT, and performs
+displacement and coherence analysis to detect ground movement at mine sites.
+
+The system goes beyond basic InSAR by providing:
+  - Phase unwrapping for true displacement measurement (not capped at ±13.9mm)
+  - 2D displacement vector fields showing flow direction
+  - Interactive hotspot selection on satellite imagery
+  - 3D displacement analysis with direction decomposition (N/S/E/W bearing)
+  - Time-series tracking of individual monitoring points
+
+
+STUDY AREA
+==========
+  Location:  Lat -20.12, Lon -44.12 (Minas Gerais, Brazil)
+  Satellite: Sentinel-1B (C-band SAR, 5.546cm wavelength)
+  Period:    January 2018 — January 2020
+  Orbit:     Descending, relative orbit maintained for consistency
+
+
+================================================================================
+                           DIRECTORY STRUCTURE
+================================================================================
+
+MineGuard_Proto/
+│
+├── run_pipeline.py                  [MASTER ORCHESTRATOR]
+├── requirements.txt                 [Python dependencies]
+├── .env                             [Credentials: CDSE_USER, CDSE_PASS]
+│
+├── config/                          [CONFIGURATION]
+│   ├── config.yaml                  [Central pipeline parameters]
+│   └── hotspots.json                [User-selected monitoring points]
+│
+├── src/                             [SOURCE CODE — All processing scripts]
+│   ├── main_script.py               [Download + SNAP interferogram processing]
+│   ├── download_originals.py        [Standalone Sentinel-1 data downloader]
+│   ├── plot_displacement.py         [Basic displacement time-series plots]
+│   ├── plot_coherence.py            [Coherence time-series plots]
+│   ├── plot_displacement_vectors.py [Vector field + strain map generation]
+│   ├── hotspot_tracker.py           [Interactive hotspot selection tool]
+│   ├── advanced_analysis.py         [Phase unwrapping + 3D direction analysis]
+│   │
+│   └── utils/                       [SHARED UTILITIES]
+│       ├── __init__.py
+│       ├── config_loader.py         [Loads config/config.yaml]
+│       ├── logging_setup.py         [Centralized logging to logs/]
+│       ├── state_tracker.py         [Pipeline crash-resume state management]
+│       └── baseline_utils.py        [Temporal/perpendicular baseline computation]
+│
+├── data/                            [ALL SATELLITE DATA]
+│   ├── original_slc/                [Raw downloaded .zip files from Copernicus]
+│   ├── input_slc/                   [Extracted .SAFE directories for SNAP]
+│   └── output_int/                  [SNAP-generated interferograms]
+│       ├── *.dim                    [BEAM-DIMAP metadata files]
+│       └── *.data/                  [Interferogram data directories]
+│           ├── i_ifg_*.img          [Real part of interferogram]
+│           ├── q_ifg_*.img          [Imaginary part of interferogram]
+│           ├── coh_*.img            [Coherence maps]
+│           └── tie_point_grids/     [Lat/lon/incidence angle grids]
+│
+├── results/                         [ALL OUTPUT PLOTS, REPORTS & DATA]
+│   ├── displacement_plot.png        [Basic displacement time-series]
+│   ├── displacement_timeseries.csv  [Displacement data export]
+│   ├── coherence_plot.png           [Coherence time-series]
+│   ├── coherence_timeseries.csv     [Coherence data export]
+│   ├── vector_field_*.png           [2D displacement flow arrows]
+│   ├── strain_map_*.png             [Deformation gradient heatmaps]
+│   ├── vectors_*.csv                [Per-pixel dx, dy, magnitude, direction]
+│   ├── baseline_report.csv          [InSAR pair quality report]
+│   ├── unwrapped_*.png              [True displacement maps (phase-unwrapped)]
+│   ├── hotspot_3d_analysis.png      [3D magnitude + direction per hotspot]
+│   ├── hotspot_direction_compass.png[Compass arrows showing flow bearing]
+│   ├── hotspot_enhanced_timeseries.png [True displacement time-series]
+│   ├── advanced_hotspot_report.csv  [Full decomposition: LOS, vertical, horizontal, bearing]
+│   ├── _satellite_basemap.png       [Downloaded satellite preview image]
+│   ├── hotspot_timeseries.png       [Legacy: basic wrapped-phase tracking]
+│   └── hotspot_report.csv           [Legacy: basic tracking report]
+│
+├── logs/                            [LOG FILES]
+│   ├── pipeline.log                 [Execution logs from all scripts]
+│   └── pipeline_state.json          [Crash-resume state tracking]
+│
+└── graphs/                          [Legacy output directory]
+
+
+================================================================================
+                              FILE DETAILS
+================================================================================
+
+--- run_pipeline.py (Master Orchestrator) ---
+
+  The entry point for the entire pipeline. Runs all 5 stages sequentially:
+    1. main_script.py           — Download & SNAP Processing
+    2. plot_displacement.py     — Displacement Time-Series
+    3. plot_coherence.py        — Coherence Time-Series
+    4. plot_displacement_vectors.py — Vector Field & Strain Maps
+    5. advanced_analysis.py     — Phase Unwrapping, Direction & 3D Analysis
+
+  Features crash-resume via state_tracker.py — if a step completes, it won't
+  re-run on the next pipeline execution. State is reset after all steps succeed.
+
+  Usage:  python run_pipeline.py
+
+
+--- config/config.yaml ---
+
+  Central configuration file. All scripts read from this instead of hardcoding.
+  Contains:
+    roi:           Mine center coordinates (lat, lon)
+    temporal_baseline_max_days:   Max days between image pairs (400)
+    perp_baseline_max_m:          Max perpendicular baseline (150m)
+    coherence_threshold:          Min coherence for valid pixels (0.15)
+    multilook:                    Range (4) and azimuth (1) looks
+    snap:                         Heap percentage (0.7), tile size (512)
+    logging:                      Log level (INFO), log file path
+    data_window:                  Time window for satellite download:
+                                    - start_date (e.g., "2014-01-01")
+                                    - end_date (e.g., "2020-01-01")
+                                    - samples (e.g., 6)
+                                  The pipeline automatically generates equally-spaced
+                                  target acquisition dates based on these inputs.
+
+
+--- config/hotspots.json ---
+
+  User-selected monitoring points saved as pixel coordinates (x, y).
+  Created interactively via hotspot_tracker.py (satellite basemap click).
+  Read by advanced_analysis.py for displacement tracking.
+
+  Example:
+    [{"x": 1815, "y": 736, "label": "Hotspot 1"},
+     {"x": 1837, "y": 803, "label": "Hotspot 2"}]
+
+
+--- src/main_script.py (Download & Processing) ---
+
+  The core InSAR engine. Performs:
+    1. Authenticates with Copernicus Data Space API
+    2. Searches for Sentinel-1 SLC products over the ROI and date window
+    3. Downloads .zip files to data/original_slc/
+    4. Extracts .SAFE directories to data/input_slc/
+    5. Selects interferometric pairs using:
+       - Temporal baseline filtering (max 400 days)
+       - Perpendicular baseline filtering (max 150m)
+       - Relative orbit consistency
+    6. Runs SNAP GPT XML graph for each pair:
+       Read → Apply-Orbit → Back-Geocoding → Enhanced-Spectral-Diversity →
+       Interferogram → Multilooking → Goldstein Phase Filtering → Terrain
+       Correction → Write
+    7. Outputs interferogram .dim/.data directories to data/output_int/
+    8. Generates baseline_report.csv with pair selection metadata
+
+  NOTE: This script uses SNAP GPT (requires ESA SNAP installed locally).
+        GPU acceleration available via snap.gpf.useGPU=true.
+
+
+--- src/plot_displacement.py ---
+
+  Reads coherence and phase data from interferograms.
+  Computes LOS (Line-of-Sight) displacement using the wrapped phase formula:
+    displacement = (phase × wavelength) / (-4π)
+  Generates a multi-date displacement time-series plot and CSV export.
+
+  Output: results/displacement_plot.png, results/displacement_timeseries.csv
+
+
+--- src/plot_coherence.py ---
+
+  Reads coherence band (coh_*.img) from each interferogram.
+  Computes mean coherence per date pair.
+  Generates a coherence bar chart and CSV export.
+
+  Output: results/coherence_plot.png, results/coherence_timeseries.csv
+
+
+--- src/plot_displacement_vectors.py ---
+
+  For each interferogram:
+    1. Loads i_ifg + q_ifg → computes phase via atan2
+    2. Converts phase to displacement
+    3. Computes 2D gradient (dx, dy) of the displacement field
+    4. Generates:
+       - Vector field quiver plot (arrows showing flow direction)
+       - Strain map heatmap (gradient magnitude = deformation rate)
+       - Per-pixel CSV with dx, dy, magnitude, direction
+
+  Output: results/vector_field_*.png, results/strain_map_*.png, results/vectors_*.csv
+
+
+--- src/hotspot_tracker.py (Interactive Tool — NOT in pipeline) ---
+
+  An interactive tool for selecting monitoring points:
+    1. Downloads a satellite basemap from Esri World Imagery
+    2. Loads tie_point_grids (lat/lon) for geo-to-pixel coordinate mapping
+    3. Displays satellite image with mine center marked
+    4. User clicks up to 10 points on the image
+    5. Geographic clicks are converted to radar pixel coordinates
+    6. Coordinates saved to config/hotspots.json
+    7. Also generates a basic wrapped-phase time-series (legacy)
+
+  Usage:  python src/hotspot_tracker.py
+  Note:   This is standalone and interactive. NOT in the automated pipeline.
+          Its primary purpose is to CREATE config/hotspots.json.
+
+
+--- src/advanced_analysis.py (The Key Analysis Script) ---
+
+  The most advanced analysis module. Reads hotspots from config/hotspots.json
+  and performs:
+    1. 2D PHASE UNWRAPPING (skimage.restoration.unwrap_phase)
+       - Removes the ±13.9mm cap from wrapped phase
+       - Reveals true displacement (can be hundreds of mm)
+
+    2. INCIDENCE ANGLE DECOMPOSITION
+       - Reads incident_angle.img from tie_point_grids
+       - Decomposes LOS displacement into:
+         • Vertical component = LOS / cos(incidence_angle)
+         • Horizontal component = LOS / sin(incidence_angle)
+
+    3. DIRECTION ANALYSIS
+       - Computes spatial gradient of unwrapped displacement
+       - Converts image-plane gradient to geographic bearing using lat/lon grids
+       - Reports flow direction as bearing (0-360°) and cardinal (N/NE/E/SE/S/SW/W/NW)
+
+    4. VISUALIZATIONS
+       - Unwrapped displacement maps with hotspot markers
+       - 3D polar plot: hotspot × magnitude × direction (with year labels)
+       - Compass direction plot per hotspot (with year labels)
+       - Enhanced time-series with direction bar chart
+
+    5. CSV EXPORT
+       - Per-hotspot, per-date: LOS, vertical, horizontal, bearing, cardinal
+
+  Output: results/unwrapped_*.png, results/hotspot_3d_analysis.png,
+          results/hotspot_direction_compass.png,
+          results/hotspot_enhanced_timeseries.png,
+          results/advanced_hotspot_report.csv
+
+
+--- src/utils/config_loader.py ---
+
+  Loads config/config.yaml and returns a Python dictionary.
+  All scripts import this to read configuration centrally.
+
+
+--- src/utils/logging_setup.py ---
+
+  Configures Python's logging module to write to both console and
+  logs/pipeline.log. Log level controlled via config.yaml.
+
+
+--- src/utils/state_tracker.py ---
+
+  Manages logs/pipeline_state.json for crash-resume capability.
+  Functions: load_state(), update_state(key, value), reset_state().
+  Each pipeline stage has a unique state key (e.g., "download_complete").
+
+
+--- src/utils/baseline_utils.py ---
+
+  Utility functions for InSAR pair selection:
+    - extract_acquisition_date(): Parses dates from Sentinel-1 filenames
+    - compute_temporal_baseline(): Days between two acquisitions
+    - estimate_perpendicular_baseline(): Estimates perp. baseline from
+      orbit state vectors in the SLC manifest.safe XML metadata
+
+
+================================================================================
+                         HOW TO RUN THE PROJECT
+================================================================================
+
+PREREQUISITES:
+  1. Python 3.10+ with packages: numpy, matplotlib, rasterio, scipy,
+     scikit-image, requests, pyyaml
+  2. ESA SNAP Desktop installed (for GPT command-line processing)
+  3. Copernicus Data Space account credentials in .env file
+
+STEP-BY-STEP:
+  1. Set credentials:
+       CDSE_USER=your_email@example.com
+       CDSE_PASS=your_password
+     (in the .env file at project root)
+
+  2. (Optional) Select hotspots interactively:
+       python src/hotspot_tracker.py
+     Click points on the satellite basemap → saves to config/hotspots.json
+
+  3. Run the full pipeline:
+       python run_pipeline.py
+
+     This executes all 5 stages automatically.
+     If any stage fails, fix the issue and re-run — completed stages are skipped.
+
+  4. View results in the results/ directory.
+
+
+================================================================================
+                         KEY TECHNICAL CONCEPTS
+================================================================================
+
+InSAR (Interferometric SAR):
+  Compares two radar images of the same area taken at different times.
+  The phase difference between the two passes encodes ground displacement
+  along the satellite's line-of-sight (LOS) direction.
+
+Phase Wrapping:
+  Raw interferometric phase is wrapped in [-π, +π], limiting displacement
+  to ±13.9mm (half wavelength). Phase unwrapping removes this ambiguity
+  to recover the true displacement.
+
+LOS Displacement:
+  The radar only measures motion toward/away from the satellite. Using the
+  incidence angle (~33° for Sentinel-1 IW1), LOS can be decomposed into
+  vertical and horizontal components.
+
+Coherence:
+  A measure (0-1) of how similar the two radar images are. High coherence
+  (>0.6) means reliable displacement measurement. Low coherence (<0.3)
+  often indicates vegetation, water, or very rapid deformation.
+
+Perpendicular Baseline:
+  The physical distance between the two satellite orbits. Ideal range is
+  50-150m. Too large (>300m) causes decorrelation; too small (<10m) gives
+  poor topographic sensitivity.
+
+Temporal Baseline:
+  Days between the two acquisition dates. Shorter is better for coherence,
+  but longer baselines capture more displacement.
+
+
+================================================================================
+                            DEPENDENCIES
+================================================================================
+
+  Python Libraries:
+    numpy, matplotlib, rasterio, scipy, scikit-image, requests, pyyaml, lxml
+
+  External Software:
+    ESA SNAP Desktop 9.0+ (includes GPT command-line tool)
+
+  External APIs:
+    Copernicus Data Space Ecosystem (satellite data download)
+    Esri World Imagery (satellite basemap for hotspot selection)
+
+================================================================================

@@ -1,0 +1,9 @@
+[
+  { "name": "Chuquicamata", "lat": -22.29, "lon": -68.90, "country": "Chile", "material": "Copper" },
+  { "name": "Jharia Coalfield", "lat": 23.75, "lon": 86.42, "country": "India", "material": "Coal" },
+  { "name": "Bingham Canyon Mine", "lat": 40.52, "lon": -112.15, "country": "USA", "material": "Copper" },
+  { "name": "Garzweiler Surface Mine", "lat": 51.05, "lon": 6.50, "country": "Germany", "material": "Lignite" },
+  { "name": "Super Pit", "lat": -30.77, "lon": 121.50, "country": "Australia", "material": "Gold" },
+  { "name": "Oyu Tolgoi", "lat": 43.01, "lon": 106.14, "country": "Mongolia", "material": "Copper/Gold" },
+  { "name": "Grasberg Mine", "lat": -4.05, "lon": 137.11, "country": "Indonesia", "material": "Gold/Copper" }
+]

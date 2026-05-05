@@ -1,0 +1,221 @@
+% ======================================================================
+%  MineGuard: IEEE 2-Page Conference Paper
+%  Compile: pdflatex mineguard_ieee_report.tex (run twice)
+% ======================================================================
+\documentclass[conference]{IEEEtran}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+
+\title{MineGuard: A Web-Based InSAR System Focused on
+Horizontal East-West Mine Deformation Monitoring}
+
+\author{
+  \IEEEauthorblockN{Ujjwal Rawat}
+  \IEEEauthorblockA{
+    Dept.\ of Electronics \& Communication Engineering\\
+    NIT Rourkela — Roll No.\ 225EC6010
+  }
+}
+
+\maketitle
+
+% ── Abstract ─────────────────────────────────────────────────────────
+\begin{abstract}
+Ground subsidence at active mine sites poses severe safety risks, but
+it is the horizontal lateral sliding that typically serves as the
+earliest precursor to catastrophic slope failure. Because conventional
+sensors and standard Line-of-Sight (LOS) radar primarily measure vertical
+settlement, these critical early warnings are often missed. This paper
+presents \textbf{MineGuard}, a full-stack web application that
+automates the Interferometric SAR (InSAR) pipeline using free
+Sentinel-1 data, with a specific focus on isolating true East-West
+horizontal deformation. By implementing a two-orbit Ascending (ASC)
+and Descending (DSC) geometric decomposition, the system strips away
+vertical bias to reveal pure lateral ground drift. Applied to the
+Jharia Coalfield (India) over a 2017–2022 period, the application
+successfully identified critical lateral landslide mechanisms,
+detecting extreme eastward shifts up to $+182.2$\,mm at specific 
+hotspots that would have been mischaracterized by vertical-only monitoring.
+\end{abstract}
+
+\begin{IEEEkeywords}
+InSAR, Sentinel-1, horizontal deformation, lateral sliding, 2D decomposition.
+\end{IEEEkeywords}
+
+% ── I. Introduction ──────────────────────────────────────────────────
+\section{Introduction}
+
+Mining excavations progressively destabilise surrounding rock masses,
+triggering both downward subsidence and lateral spreading. In geotechnical
+engineering, horizontal (East-West) displacement along failure planes
+is consistently recognized as the earliest precursor to slope collapse.
+Once lateral sliding initiates, intervention windows are short. Yet, this
+horizontal movement remains largely invisible to conventional vertical
+sensors and standard single-pass radar configurations \cite{cascini2010}.
+
+Spaceborne InSAR with Sentinel-1 offers synoptic, millimetre-scale
+deformation maps at no data acquisition cost \cite{massonnet1998,
+berardino2002}. However, standard InSAR workflows yield a 1-dimensional
+Line-of-Sight (LOS) measurement heavily biased toward vertical motion.
+Extracting true horizontal drift requires complex multi-orbit algebra
+and specialist expertise unavailable to on-site engineers.
+MineGuard eliminates this barrier. By embedding algorithmic 2D vector
+decomposition inside a guided, automated web application, MineGuard
+shifts the monitoring focus from simple subsidence to critical lateral
+failure detection, providing engineers with automated, directionally-accurate
+geotechnical early warnings.
+
+% ── II. Methodology ──────────────────────────────────────────────────
+\section{Methodology}
+
+\subsection{Data Acquisition and Pre-Processing}
+Sentinel-1 IW-SLC scenes are queried from the Copernicus Data Space
+Ecosystem (CDSE) API. To enable horizontal decomposition, both Ascending
+(ASC) and Descending (DSC) orbit passes are retrieved and assembled
+into pairs with temporal baselines $\Delta t \leq 12$\,days.
+
+Each pair is automatically processed through an ESA SNAP GPT pipeline:
+orbit correction, back-geocoding, Enhanced Spectral Diversity (ESD),
+interferogram formation, flat-earth/DEM phase removal, Goldstein
+adaptive phase filtering, Snaphu phase unwrapping, and terrain
+correction. Unwrapping removes the $\pm\pi$ wrapped-phase
+ambiguity, enabling robust measurement of cumulative deformations.
+
+\subsection{2D East-West Vector Decomposition}
+A single satellite pass linearly couples horizontal and vertical
+motion into one LOS orientation. Because Sentinel-1 occupies a
+near-polar orbit, it is highly sensitive to East-West and vertical
+movement, but largely blind to North-South motion. Therefore, the
+primary objective of geometric decomposition is to mathematically
+isolate the East-West drift ($d_E$) from the vertical settlement ($d_U$).
+
+Combining matched ASC and DSC pairs forms a $2\times2$ linear system
+per epoch \cite{wright2004}:
+\begin{equation}
+  d_{\mathrm{LOS}} = -\sin\theta\cos\alpha\cdot d_E
+                   + \cos\theta\cdot d_U
+  \label{eq:obs}
+\end{equation}
+where $\theta$ is the incidence angle ($40^\circ$ ASC, $35^\circ$
+DSC), and $\alpha$ is the satellite heading ($350^\circ$ ASC,
+$190^\circ$ DSC). Solving this system via Cramer's Rule yields
+the pure lateral East-West drift vector, untainted by vertical
+compaction artifacts.
+
+\subsection{Horizontal-Focused Risk Classification}
+While traditional systems trigger alerts based on total subsidence,
+MineGuard's automated risk engine heavily weights the horizontal
+magnitude. Cumulative E-W displacement defines the site-specific
+lateral risk index (LOW $<30$\,mm, MEDIUM $30$--$80$\,mm, HIGH
+$80$--$150$\,mm, CRITICAL $\geq150$\,mm).
+
+% ── III. Results ─────────────────────────────────────────────────────
+\section{Experimental Results}
+
+The pipeline was deployed on the Jharia Coalfield, India
+($23.732^\circ$\,N, $86.438^\circ$\,E)—a region notorious for intense
+underground fires and severe surface instability. Monitoring focused
+on tracking the lateral structural integrity of hotspots P1 through
+P5 spanning 2017 to 2022. Table~\ref{tab:results} and Fig.~\ref{fig:plots}
+detail the horizontal drift dynamics.
+
+\begin{table}[h]
+  \caption{Cumulative Horizontal Deformation Focus (Jharia, 2017–2022)}
+  \label{tab:results}
+  \centering
+  \setlength{\tabcolsep}{6pt}
+  \begin{tabular}{lccl}
+    \toprule
+    \textbf{Hotspot} & \textbf{East-West Drift} & \textbf{Vertical Subs.} & \textbf{Lateral Risk} \\
+    \midrule
+    P1 & $+315.2$\,mm & $-552.8$\,mm & CRITICAL \\
+    P3 & $-188.0$\,mm & $-537.8$\,mm & CRITICAL \\
+    P5 & $-178.9$\,mm & $-895.4$\,mm & CRITICAL \\
+    P2 & $-22.4$\,mm  & $-397.4$\,mm & LOW \\
+    P4 & $+14.5$\,mm  & $-211.0$\,mm & LOW \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\linewidth]{MineGuard_Proto/results/hotspot_map.png}
+  
+  \vspace{1.5mm}
+  \includegraphics[width=0.7\linewidth]{MineGuard_Proto/results/plot_01_horizontal_displacement.png}
+  
+  \vspace{1.5mm}
+  \includegraphics[width=0.7\linewidth]{MineGuard_Proto/results/plot_03_3d_trajectory.png}
+  \caption{Top: Satellite basemap showing selected hotspots. Middle: Cumulative East-West horizontal displacement isolating lateral shift. Bottom: 3D vector displacement trajectory mapping concurrent vertical and lateral motion over time.}
+  \label{fig:plots}
+\end{figure}
+
+Shifting the analytical focus from vertical to horizontal completely
+alters the geotechnical threat assessment. The decomposition reveals
+severe mechanical diversity across the open pit. While all points
+experienced massive vertical collapse (e.g., P5 subsiding an extreme
+$-895.4$\,mm), the horizontal tracking captures distinct lateral
+landslide mechanisms sliding in opposite directions.
+
+P1 exhibits a massive and dangerous $+315.2$\,mm eastward shift,
+representing an active lateral separation block. Conversely, P3
+and P5 are accelerating westward ($-188.0$\,mm and $-178.9$\,mm
+respectively). From a slope stability perspective, this severe
+horizontal shearing (the pit walls spreading apart) represents an
+imminent catastrophic landslide threat that could trigger sudden failure,
+yet would be heavily misunderstood if observing only vertical subsidence. 
+Furthermore, while P4 shows some vertical settlement, its lateral shift 
+($+14.5$\,mm) is minimal, signifying centralized compaction rather than 
+lateral shedding. By isolating the $d_E$ vector, the system correctly 
+pinpoints the divergent lateral blocks.
+
+% ── IV. Conclusion ───────────────────────────────────────────────────
+\section{Conclusion}
+
+MineGuard demonstrates that critical horizontal mine deformation
+data can be extracted and delivered automatically through a robust,
+user-friendly web interface. By implementing a 2D ASC+DSC vector
+decomposition, the system successfully strips away vertical biases
+to isolate pure East-West lateral sliding. Demonstrated over the
+Jharia Coalfield, this focus correctly identified severe divergent
+landslide threats ($+315.2$\,mm eastward at P1 and $-188.0$\,mm
+westward at P3) that conventional vertical monitoring would have
+obscured. This capability empowers field engineers to detect slope
+failure precursors earlier, vastly improving mine-site safety
+interventions.
+
+% ── References ───────────────────────────────────────────────────────
+\begin{thebibliography}{1}
+
+\bibitem{massonnet1998}
+D.~Massonnet and K.~L.~Feigl, ``Radar interferometry and its
+application to changes in the earth's surface,''
+\textit{Rev.\ Geophys.}, vol.~36, no.~4, 1998.
+
+\bibitem{berardino2002}
+P.~Berardino et al., ``A new algorithm for surface deformation
+monitoring based on small baseline differential SAR interferograms,''
+\textit{IEEE Trans.\ Geosci.\ Remote Sens.}, vol.~40, no.~11, 2002.
+
+\bibitem{wright2004}
+T.~J.~Wright, B.~E.~Parsons, and Z.~Lu, ``Toward mapping surface
+deformation in three dimensions using InSAR,''
+\textit{Geophys.\ Res.\ Lett.}, vol.~31, no.~1, 2004.
+
+\bibitem{cascini2010}
+L.~Cascini et al., ``Advanced low- and full-resolution DInSAR map
+generation for slow-moving landslide analysis,''
+\textit{Eng.\ Geol.}, vol.~112, 2010.
+
+\end{thebibliography}
+
+\end{document}

@@ -1,0 +1,24 @@
+roi:
+  lat: 23.723156
+  lon: 86.44314
+  north: 23.744993449977546
+  south: 23.70131948993594
+  east: 86.46562228066881
+  west: 86.42065846874172
+temporal_baseline_max_days: 800
+perp_baseline_max_m: 150
+coherence_threshold: 0.15
+data_window:
+  start_date: '2017'
+  end_date: '2021'
+  samples: 5
+  reference_date: 07-23
+multilook:
+  range: 4
+  azimuth: 1
+snap:
+  heap_percent: 0.7
+  tile_size: 512
+logging:
+  level: INFO
+  log_file: logs/pipeline.log

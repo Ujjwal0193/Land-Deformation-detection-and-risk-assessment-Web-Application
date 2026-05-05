@@ -1,0 +1,30 @@
+# Environments
+.env
+.env.*
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Project specific
+logs/
+output_int/
+results/
+data/
+input_slc/
+original_slc/
+*.log
+*.err
+hs_err_pid*.log

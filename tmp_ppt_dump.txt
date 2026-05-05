@@ -1,0 +1,320 @@
+
+--- Slide 1 ---
+
+Mine Guard 
+
+Satellite-powered ground East-West movement monitoring — designed for every mine site engineer.
+
+React + TypeScript
+
+Python FastAPI
+
+SNAP InSAR Engine
+
+Sentinel-1  ASC+DSC
+Final Project  •  ECE Department  •  NIT Rourkela  •  Ujjwal Rawat (225EC6010)
+1 / 13
+
+--- Slide 2 ---
+
+PRODUCT SPECIFICATION  ›  INTRODUCTION
+What is MineGuard?
+MineGuard is a full-stack web application that uses free Sentinel-1 satellite radar data to automatically detect and track ground horizontal deformation at active mine sites — with no programming or satellite expertise required.
+
+  Why It Matters
+
+▸ Problem  Mining excavations cause ground to sink and slide — often undetected until too late. ▸ Cost  Traditional ground sensors are expensive, local, and require specialist teams. ▸ Gap  No affordable, automated tool existed for non-technical mine site engineers.
+
+  What It Uses
+
+▸ Satellite  Free Sentinel-1 SAR images from the European Space Agency (ESA) Copernicus programme. ▸ Engine  SNAP (Sentinel Application Platform) for professional InSAR interferogram processing. ▸ Stack  React TypeScript frontend + Python FastAPI backend — runs entirely in a web browser.
+
+  What It Delivers
+
+▸ Output  Millimetre-precision ground displacement measurements at user-selected hotspot locations. ▸ Report  Automated geotechnical risk assessment: Low / Medium / High / Critical per hotspot. ▸ Access  Any mine on Earth, any timeframe from 2014–present, zero cost satellite data.
+2 / 13
+
+--- Slide 3 ---
+
+PRODUCT SPECIFICATION  ›  USER EXPERIENCE
+Built for the Field Engineer
+Every design decision was made for mine site engineers who have no computer science background. The application guides users through every step without jargon.
+
+Step-by-Step Instructions
+Every page opens with a clearly numbered instruction panel explaining exactly what to do next. The user never wonders what a button does.
+
+Purpose-Built Dark Theme
+A high-contrast dark colour scheme reduces eye fatigue during long monitoring sessions. Key actions are highlighted in vivid blue.
+
+Plain-English Graph Captions
+Each displacement chart is accompanied by an auto-generated sentence explaining what the graph shows — no data science knowledge needed.
+
+Boundary-Safe Inputs
+Click-safety guards prevent users from placing hotspot markers outside the crop boundary, and warn before any destructive action is taken.
+
+Live Status Feedback
+The processing dashboard updates every 3 seconds so engineers always know which satellite pairs are running, complete, or waiting.
+3 / 13
+
+--- Slide 4 ---
+
+PRODUCT SPECIFICATION  ›  USE CASES
+Who Uses MineGuard?
+MineGuard is designed as a universal tool — from daily operational safety checks to long-term academic subsidence research.
+
+Mine Site Engineer
+
+▸ Daily Task  Open the app, select the mine, and check if any hotspot crossed a risk threshold overnight. ▸ Value  Replaces expensive GPS survey teams. Results available within hours of satellite pass. ▸ Ease  No training needed beyond basic web browsing. The app instructs the user at every step.
+
+ Geotechnical Consultant
+
+▸ Task  Import a client's mine, define the crop area, and run a multi-year displacement analysis. ▸ Value  Generates a professional, printable risk report automatically — ready to hand to the client. ▸ Ease  All complex InSAR maths is automated; the consultant only interprets the final charts.
+
+ Research / Academia
+
+▸ Task  Study long-term subsidence trends across multiple mine sites using Sentinel-1 archives. ▸ Value  Free satellite data from 2014 onwards provides a decade-long deformation record. ▸ Ease  Export-ready CSV displacement values and publication-quality matplotlib charts.
+4 / 13
+
+--- Slide 5 ---
+
+PRODUCT DETAIL  ›  THE CORE PROBLEM
+Ground Doesn't Just Sink — It Slides.
+East–West horizontal displacement is the earliest warning signal of mine-slope failure — yet it is invisible to conventional vertical sensors.
+
+  Without East–West Detection
+▸ Hidden Hazard  Horizontal sliding begins weeks before the ground visibly sinks — giving a false sense of stability on vertical-only monitors. ▸ Wrong Metric  A sensor measuring only depth cannot distinguish whether a mine wall is sliding laterally outward or simply compressing downward. ▸ Late Warning  By the time vertical settlement becomes measurable, the lateral failure has already progressed to a point where intervention is difficult. ▸ Industry Gap  Most traditional InSAR tools report only vertical or line-of-sight displacement, omitting the critical East–West component entirely.
+
+MineGuard — Horizontal First
+▸ True E–W Measurement  Combines Ascending and Descending satellite passes to mathematically isolate the pure East–West component of ground movement. ▸ mm-Level Precision  Sentinel-1 C-band radar resolves displacements as small as 1–3 mm, detecting lateral shifts months before they become dangerous. ▸ Early Intervention  Knowing the direction of movement allows geotechnical teams to install targeted support structures before a critical failure event. ▸ Proven Science  2D ASC+DSC InSAR decomposition is the standard method used in professional mine subsidence monitoring worldwide (e.g., Anglo American, BHP site surveys).
+5 / 13
+
+--- Slide 6 ---
+
+PRODUCT DETAIL  ›  3D VISUALISATION
+Displacement Mapped into 3D Space
+MineGuard plots every hotspot's complete deformation history on three orthogonal axes — so engineers can see exactly how, where, and when each point is moving.
+
+
+X  —  HORIZONTAL (East ↔ West)
+Measures true East–West ground displacement in millimetres per epoch.  |  Positive (+) means the ground moved Eastward. Negative (−) means Westward sliding.
+↳ Example: P2 drifted −283 mm westward by 2021 — the strongest lateral movement on site.
+
+
+Y  —  VERTICAL (Subsidence)
+Measures true vertical ground settlement in millimetres (downward is negative).  |  Derived from the same ASC+DSC decomposition as horizontal — both axes share one calculation.
+↳ Example: P1 settled −159 mm vertically over 4 years — moderate but steady subsidence.
+
+
+Z  —  TIME  (Year Axis)
+The temporal axis converts calendar dates to decimal years (e.g., June 2018 = 2018.42).  |  Time is shown continuously so acceleration or deceleration of movement is immediately visible.
+↳ Example: P5 was stable until 2018 then showed a sudden −210 mm lateral event in one epoch.
+
+6 / 13
+
+--- Slide 7 ---
+
+PRODUCT DETAIL  ›  HOW WE MEASURE HORIZONTAL DISPLACEMENT
+Two Satellite Passes. One Precise Answer.
+A single satellite pass measures ground movement only along its line-of-sight — a mixture of horizontal and vertical. Two opposite-direction passes let us mathematically separate both components.
+
+  Ascending Pass (ASC)
+▸ Direction  Satellite flies Northward along an inclined orbit track. ▸ Look angle  Radar beam points East toward ground, ~40° from vertical. ▸ Measures  LOS displacement = blend of eastward shift + vertical settlement. ▸ Coverage  Four ASC interferometric pairs acquired over 2017–2021.
+
+Descending Pass (DSC)
+▸ Direction  Satellite flies Southward — the opposite track to ASC. ▸ Look angle  Radar beam points West toward ground, ~35° from vertical. ▸ Measures  LOS displacement from the opposite side — the other equation. ▸ Coverage  Four DSC interferometric pairs matched within ≤12 days of ASC.
+
+Result
+ASC  +  DSC  ↓  True E/W & Vertical
+Formula: d_LOS = −sin(θ)·cos(α)·d_E + cos(θ)·d_U  — solved simultaneously for ASC & DSC using Cramer's Rule.
+7 / 13
+
+--- Slide 8 ---
+
+WORK DONE  ›  METHODOLOGY
+How MineGuard Processes Satellite Data
+Five sequential processing stages transform raw radar images into millimetre-precision ground displacement measurements and an automated risk report.
+
+
+Stage 01
+Data Acquisition
+▸ Source  Free Sentinel-1 C-band SAR images retrieved from the ESA Copernicus Data Space Ecosystem (CDSE) via the OData REST API. ▸ Selection  Both Ascending (ASC) and Descending (DSC) orbit passes are queried for the user-defined ROI, timeframe, and IW-SLC product type. ▸ Pairs  Images are automatically matched into interferometric pairs within a ≤12-day temporal baseline to maintain coherence.
+▶
+
+
+Stage 02
+InSAR Pre-Processing (SNAP)
+▸ Co-registration  Master and slave SLC images are precisely aligned at sub-pixel accuracy using a cross-correlation-based co-registration graph in ESA SNAP. ▸ Interferogram  Phase difference between the two acquisitions is computed; flat-earth and topographic phase are removed using a DEM. ▸ Filtering + Unwrapping  Goldstein adaptive phase filter reduces noise; Snaphu phase unwrapping converts wrapped phase (−π to π) to absolute phase.
+▶
+
+
+Stage 03
+2D ASC+DSC Decomposition
+▸ System  One ASC LOS and one matched DSC LOS measurement form a 2×2 linear system: d_LOS = −sin(θ)cos(α)·d_E + cos(θ)·d_U. ▸ Solution  The system is solved analytically using Cramer's Rule to yield true East–West (d_E) and true Vertical (d_U) displacement per epoch. ▸ Output  Cumulative E/W and Vertical time-series are computed by summing incremental epoch values from the start of the monitoring period.
+▶
+
+
+Stage 04
+Risk Classification & Reporting
+▸ Thresholds  Cumulative displacement is compared against geotechnical severity bands: LOW < 30 mm | MEDIUM < 80 mm | HIGH < 150 mm | CRITICAL ≥ 150 mm. ▸ Report  An automated natural-language executive summary and colour-coded risk table are generated per hotspot without manual intervention. ▸ Actions  Engineering recommendations (e.g., install inclinometers, evacuate zone) are ranked and output in order of severity.
+▶
+8 / 14
+
+--- Slide 9 ---
+
+WORK DONE  ›  COMPLETE APPLICATION WORKFLOW
+8 Pages. One Seamless Pipeline.
+The app guides the engineer through eight sequential pages — from mine selection to automated risk report — each page building on the output of the one before it.
+
+1
+Search Mine
+Type mine name → global geocoding → satellite map centres automatically.
+▶
+
+2
+Crop Area
+Draw a bounding box on the map to define the exact monitoring zone.
+▶
+
+3
+Timeline
+Select start/end year + frequency. App estimates data size & compute time.
+▶
+
+4
+Data Download
+App queries ESA Copernicus and downloads Sentinel-1 SLC files automatically.
+↙  continues
+
+5
+Processing
+SNAP engine generates interferograms. Live progress dashboard updates every 3s.
+▶
+
+6
+Pick Hotspots
+Click up to 10 danger zones on the satellite map. Coordinates sent to engine.
+▶
+
+7
+Results
+Three scientific plots: E/W drift, LOS displacement, and 3D trajectory.
+▶
+
+8
+Risk Report
+Automated geotechnical summary with risk ratings and engineering actions.
+8 / 13
+
+--- Slide 10 ---
+
+WORK DONE  ›  PAGE 1 & PAGE 2
+Step 1: Find Your Mine   |   Step 2: Define the Zone
+The first two pages establish where and what to monitor — transforming a mine name into precise geographical coordinates.
+
+
+
+PAGE 1  —  Search Mine  (Entry Point)
+
+▸ What the user does  Types the name of the mine (e.g., 'Jharia Coal Field') into a search bar. ▸ What happens  The Nominatim OpenStreetMap API geocodes the name in real-time and returns GPS coordinates as the user types — no manual lat/lon entry needed. ▸ Map response  An interactive Leaflet satellite map (Esri World Imagery) instantly recentres and zooms to the mine location for visual confirmation. ▸ Design note  A live dropdown shows ranked results so users can distinguish between similarly named mines in different countries.
+
+
+
+PAGE 2  —  Crop / Region of Interest
+
+▸ What the user does  Clicks four corner points directly on the satellite map to draw a tight bounding box around the specific mine area to monitor. ▸ Alternative input  Manual coordinate fields (North/South/East/West) allow precise numerical entry for users who already know their ROI boundaries. ▸ Why it matters  The ROI boundary is sent to the backend for all satellite queries — a tight crop reduces download size by 60–80 % vs. a default wide area. ▸ Safety  Coordinates are immediately validated and stored in React Context, persisting across all downstream pages without any re-entry.
+9 / 13
+
+--- Slide 11 ---
+
+WORK DONE  ›  PAGE 3 & PAGE 4
+Step 3: Set the Timeframe   |   Step 4: Retrieve Satellite Data
+These two pages configure the temporal scope of the analysis and automatically retrieve multi-gigabyte satellite datasets from ESA.
+
+
+📷
+Page 3 — Timeline Selection
+Insert screenshot here
+
+PAGE 3  —  Timeline Configuration
+
+▸ What the user does  Selects a Start Year, End Year, and analysis frequency (e.g., Monthly, Quarterly) using simple dropdown menus. ▸ Smart estimator  The app dynamically calculates the total Sentinel-1 data volume (in GB) and estimated SNAP processing time for the chosen period. ▸ Value  Engineers can budget bandwidth and compute time before committing — avoiding accidental 200 GB downloads on a slow connection. ▸ Output  The selected timeframe is passed to the CDSE OData API query for building the interferometric pair schedule.
+
+
+📷
+Page 4 — Data Download
+Insert screenshot here
+
+PAGE 4  —  Sentinel-1 Data Download
+
+▸ What the user does  Clicks 'Start Download'. The app queries the ESA Copernicus Data Space Ecosystem API and fetches matching Sentinel-1 SLC scenes. ▸ Background processing  Downloads run asynchronously — the web UI remains fully responsive while 7 GB files transfer in the background. ▸ Local Directory Link  Users who already have the SLC files saved locally can click 'Link Local Directory' to bypass downloading entirely — saving hours. ▸ Integrity check  Each file is verified before the pipeline advances: if any file is corrupt or missing, the user is warned before processing begins.
+10 / 13
+
+--- Slide 12 ---
+
+WORK DONE  ›  PAGE 5 & PAGE 6
+Step 5: Process InSAR   |   Step 6: Select Hotspots
+The most technically intensive stage — generating interferograms with SNAP — and then targeting the specific danger zones to monitor.
+
+
+
+PAGE 5  —  SNAP InSAR Processing Dashboard
+
+▸ What happens  The app launches Python workers that run the ESA SNAP graph for each ASC and DSC interferometric pair (8 pairs total). ▸ Live queue  A colour-coded dashboard updates every 3 seconds: Pending (grey), Processing (amber spinner), Complete (green badge with elapsed time). ▸ Smart pre-scan  On restart, the app scans output folders and automatically skips any pair whose .dim file and .data directory already exist — no redundant compute. ▸ Worker control  A 'Start Processing' button begins the queue; a 'Stop Worker' button cancels at any time without corrupting completed outputs.
+
+
+
+PAGE 6  —  Interactive Hotspot Targeting
+
+▸ What the user does  Clicks directly on the satellite map to place numbered monitoring markers (P1–P10) over specific high-risk zones such as pit walls. ▸ Boundary guard  The app prevents markers from being placed outside the ROI defined in Page 2 — a yellow warning appears if the user clicks outside. ▸ Precision  Each marker's exact GPS latitude and longitude is captured and displayed next to its label for field-team cross-reference. ▸ Handoff  Saved hotspot coordinates are passed directly to the Python analysis engine for pixel-level time-series extraction from the interferograms.
+11 / 13
+
+--- Slide 13 ---
+
+WORK DONE  ›  PAGE 7 & PAGE 8  (RESULTS)
+Step 7: Analyse Results   |   Step 8: Automated Risk Report
+The final two pages transform raw InSAR numbers into three scientific charts and a complete geotechnical safety verdict.
+
+
+
+PAGE 7  —  Advanced Displacement Analysis
+
+▸ Chart 1 — E/W Displacement  Cumulative East–West displacement time-series for all hotspots. Positive = Eastward; Negative = Westward sliding. ▸ Chart 2 — 3D Trajectory  Dark-background 3D scatter plot: X = E/W, Y = Vertical, Z = Time. Each hotspot traces its full unique deformation path in space. ▸ Plain-English Captions  Below every chart, an auto-generated sentence explains the key finding in non-technical language for site managers.
+
+
+
+PAGE 8  —  Automated Geotechnical Risk Assessment
+
+▸ Risk Classification  Calculates cumulative displacement per hotspot and assigns: LOW (<30 mm) / MEDIUM (<80 mm) / HIGH (<150 mm) / CRITICAL (>150 mm). ▸ Executive Summary  Auto-generates a site-wide natural-language paragraph describing the overall deformation pattern and dominant failure direction. ▸ Hotspot Risk Table  Colour-coded table (green → red) listing each hotspot's peak displacement, trend direction, and individual risk verdict. ▸ Engineering Actions  Produces a ranked list of recommended actions (e.g., 'Install inclinometers at P2') scaled automatically to the detected severity level.
+12 / 13
+
+--- Slide 14 ---
+
+MineGuard
+
+Affordable
+
+Automated
+
+Accurate
+Any mine. Any continent. No satellite expertise required.
+
+
+
+InSAR Pipeline
+Fully automated SNAP interferometric processing for ASC & DSC Sentinel-1 pairs.
+
+
+2D Decomposition
+True East–West and Vertical displacement separated by solving a 2×2 linear system.
+
+
+8-Page Web App
+React TypeScript frontend + Python FastAPI backend; runs entirely in a browser.
+
+
+ Auto Risk Report
+Threshold-based geotechnical risk classification with engineering action recommendations.
+
+Thank You  —  Questions & Discussion
+Ujjwal Rawat  •  225EC6010  •  ECE Department  •  NIT Rourkela
+13 / 13

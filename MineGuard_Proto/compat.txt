@@ -1,0 +1,18 @@
+2026-03-24 10:50:24,983 [INFO] Configuration Loaded.
+2026-03-24 10:50:24,984 [INFO]   PROJECT_ROOT: c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\MineGuard_Proto
+2026-03-24 10:50:24,984 [INFO]   INPUT_SLC_DIR: c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\input_slc
+2026-03-24 10:50:24,984 [INFO]   OUTPUT_INT_DIR: c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\MineGuard_Proto\data\output_int
+2026-03-24 10:50:24,984 [INFO]   GRAPH_PATH: c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\MineGuard_Proto\src\graphs\process_graph.xml
+2026-03-24 10:50:24,984 [INFO]   ROI_WKT: POINT(-120.51093 50.649528)
+Date         | Orbit  | Subswath   | Bursts   | Filename
+--------------------------------------------------------------------------------
+2026-03-24 10:50:25,033 [INFO]   [BURST] AOI (20.96, 85.09) found in IW2, Selected range: 6-8.
+2015-02-23   | None   | IW2        | 6-8      | S1A_IW_SLC__1SDV_20150223T001235_20150223T001...
+2026-03-24 10:50:25,057 [INFO]   [BURST] AOI (20.96, 85.09) found in IW2, Selected range: 3-5.
+2016-01-01   | None   | IW2        | 3-5      | S1A_IW_SLC__1SDV_20160101T001250_20160101T001...
+2026-03-24 10:50:25,062 [INFO]   [BURST] AOI (20.96, 85.09) found in IW2, Selected range: 1-2.
+2017-01-07   | None   | IW2        | 1-2      | S1A_IW_SLC__1SDV_20170107T001305_20170107T001...
+2026-03-24 10:50:25,081 [INFO]   [BURST] AOI (20.96, 85.09) found in IW2, Selected range: 6-8.
+2018-01-02   | None   | IW2        | 6-8      | S1A_IW_SLC__1SDV_20180102T001253_20180102T001...
+2026-03-24 10:50:25,100 [INFO]   [BURST] AOI (20.96, 85.09) found in IW2, Selected range: 6-8.
+2019-01-09   | None   | IW2        | 6-8      | S1A_IW_SLC__1SDV_20190109T001259_20190109T001...

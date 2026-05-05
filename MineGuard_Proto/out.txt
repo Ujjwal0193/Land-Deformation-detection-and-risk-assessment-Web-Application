@@ -1,0 +1,10 @@
+2026-03-24 09:45:50,897 [INFO] Configuration Loaded.
+2026-03-24 09:45:50,897 [INFO]   PROJECT_ROOT: c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\MineGuard_Proto
+2026-03-24 09:45:50,897 [INFO]   INPUT_SLC_DIR: c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\input_slc
+2026-03-24 09:45:50,897 [INFO]   OUTPUT_INT_DIR: c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\MineGuard_Proto\data\output_int
+2026-03-24 09:45:50,897 [INFO]   GRAPH_PATH: c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\MineGuard_Proto\src\graphs\process_graph.xml
+2026-03-24 09:45:50,897 [INFO]   ROI_WKT: POINT(-120.51093 50.649528)
+Traceback (most recent call last):
+  File "C:\Projects\snap\MineGuardProto-1\MineGuardProto-1\MineGuard_Proto\check_compat.py", line 6, in <module>
+    from src.main_script import detect_bursts_for_aoi, get_relative_orbit_from_zip, get_product_date
+ImportError: cannot import name 'get_relative_orbit_from_zip' from 'src.main_script' (c:\Projects\snap\MineGuardProto-1\MineGuardProto-1\MineGuard_Proto\src\main_script.py)
